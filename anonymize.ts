@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { Command } from 'commander';
 import { faker } from '@faker-js/faker';
-const camelCase = (key: string) => import('camelcase').then(({default: camelCase}) => camelCase(key));
 
 const program = new Command();
 
@@ -29,6 +28,8 @@ const getFakeString = (): string => {
 };
 
 const anonymizeObject = async (obj: any): Promise<any> => {
+    const importedCamelCase = options.camelcase ? await import('camelcase') : null;
+
     if (typeof obj === 'string') {
         // Simple check for UUID (pattern: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx')
         if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(obj)) {
@@ -39,15 +40,15 @@ const anonymizeObject = async (obj: any): Promise<any> => {
     }
 
     if (Array.isArray(obj)) {
-        return obj.map(anonymizeObject);
+        return Promise.all(obj.map(anonymizeObject));
     }
 
     if (typeof obj === 'object' && obj !== null) {
         const result: { [key: string]: any } = {};
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) {
-                const updatedKey = options.camelcase ? await camelCase(key) : key;
-                result[updatedKey] = anonymizeObject(obj[key]);
+                const updatedKey = options.camelcase && importedCamelCase ? importedCamelCase.default(key) : key;
+                result[updatedKey] = await anonymizeObject(obj[key]);
             }
         }
         return result;
@@ -56,21 +57,15 @@ const anonymizeObject = async (obj: any): Promise<any> => {
     return obj;
 };
 
-fs.readFile(options.file, 'utf8', (err, data) => {
-    if (err) {
-        console.error(`Error reading file: ${err.message}`);
-        process.exit(1);
-    }
-
+const main = async () => {
+    const data = await fs.promises.readFile(options.file, 'utf8');
     let json: any = JSON.parse(data);
-    json = anonymizeObject(json);
+    json = await anonymizeObject(json);
 
     const outputFilename = `anonymized_${options.file}`;
-    fs.writeFile(outputFilename, JSON.stringify(json, null, 2), (err) => {
-        if (err) {
-            console.error(`Error writing file: ${err.message}`);
-            process.exit(1);
-        }
-        console.log(`Anonymized JSON saved to ${outputFilename}`);
-    });
-});
+    await fs.promises.writeFile(outputFilename, JSON.stringify(json, null, 2));
+
+    console.log(`Anonymized JSON saved to ${outputFilename}`);
+};
+
+main();
