@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node
+
 import * as fs from "fs";
 import * as path from "node:path";
 import * as crypto from "crypto";
