@@ -69,7 +69,6 @@ fs.readFile(options.file, "utf8", (err, data) => {
 
   const outputFilename = path.resolve(
     __dirname,
-    "../client/mocks",
     `anonymized_${options.file}`,
   );
   fs.writeFile(outputFilename, JSON.stringify(json, null, 2), (err) => {
