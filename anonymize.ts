@@ -30,12 +30,22 @@ const snakeToCamel = (str: string): string => {
     return str.replace(/_([a-z])/g, (match, p1) => p1.toUpperCase());
 };
 
+const isIsoDateString = (str: string): boolean => {
+  const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+  return isoDateRegex.test(str);
+};
+
 const anonymizeObject = (obj: any): any => {
     if (typeof obj === 'string') {
         // Simple check for UUID (pattern: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx')
         if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(obj)) {
             return hashUuid(obj);
-        } else {
+        }
+        // Check for ISO date strings
+        else if (isIsoDateString(obj)) {
+            return new Date(obj).getTime(); // Convert to Unix timestamp
+        } 
+        else {
             return getFakeString();
         }
     }
