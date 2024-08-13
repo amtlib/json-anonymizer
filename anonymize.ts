@@ -43,7 +43,7 @@ const anonymizeObject = (obj: any): any => {
         }
         // Check for ISO date strings
         else if (isIsoDateString(obj)) {
-            return new Date(obj).getTime(); // Convert to Unix timestamp
+            return obj;
         } 
         else {
             return getFakeString();
