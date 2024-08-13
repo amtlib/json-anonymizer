@@ -67,10 +67,7 @@ fs.readFile(options.file, "utf8", (err, data) => {
   let json: any = JSON.parse(data);
   json = anonymizeObject(json);
 
-  const outputFilename = path.resolve(
-    __dirname,
-    `anonymized_${options.file}`,
-  );
+  const outputFilename = `anonymized_${options.file}`;
   fs.writeFile(outputFilename, JSON.stringify(json, null, 2), (err) => {
     if (err) {
       console.error(`Error writing file: ${err.message}`);
