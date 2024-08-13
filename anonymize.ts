@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 import { Command } from 'commander';
 import { faker } from '@faker-js/faker';
-import camelCase from 'camelcase';
+const camelCase = (key: string) => import('camelcase').then(({default: camelCase}) => camelCase(key));
 
 const program = new Command();
 
@@ -28,7 +28,7 @@ const getFakeString = (): string => {
     return faker.lorem.word();
 };
 
-const anonymizeObject = (obj: any): any => {
+const anonymizeObject = async (obj: any): Promise<any> => {
     if (typeof obj === 'string') {
         // Simple check for UUID (pattern: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx')
         if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(obj)) {
@@ -46,7 +46,7 @@ const anonymizeObject = (obj: any): any => {
         const result: { [key: string]: any } = {};
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) {
-                const updatedKey = options.camelcase ? camelCase(key) : key;
+                const updatedKey = options.camelcase ? await camelCase(key) : key;
                 result[updatedKey] = anonymizeObject(obj[key]);
             }
         }
