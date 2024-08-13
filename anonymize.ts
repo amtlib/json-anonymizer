@@ -43,7 +43,7 @@ const anonymizeObject = (obj: any): any => {
         }
         // Check for ISO date strings
         else if (isIsoDateString(obj)) {
-            return obj;
+            return new Date(obj).toISOString();
         } 
         else {
             return getFakeString();

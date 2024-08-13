@@ -1,6 +1,6 @@
 {
   "name": "json-anonymizer",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "A CLI tool to anonymize JSON files",
   "main": "dist/anonymize.js",
   "bin": {
